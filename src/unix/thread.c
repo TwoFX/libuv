@@ -169,6 +169,7 @@ int uv_thread_create_ex(uv_thread_t* tid,
   }
 
   f.in = entry;
+  printf("thread pthread_create\n");
   err = pthread_create(tid, attr, f.out, arg);
 
   if (attr != NULL)

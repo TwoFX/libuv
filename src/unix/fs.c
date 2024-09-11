@@ -306,9 +306,11 @@ static void uv__mkostemp_initonce(void) {
 
 
 static int uv__fs_mkstemp(uv_fs_t* req) {
+  printf("mkstemp1\n");
   static uv_once_t once = UV_ONCE_INIT;
   int r;
 #ifdef O_CLOEXEC
+  printf("mkstemp2\n");
   static _Atomic int no_cloexec_support;
 #endif
   static const char pattern[] = "XXXXXX";
@@ -318,6 +320,7 @@ static int uv__fs_mkstemp(uv_fs_t* req) {
 
   path = (char*) req->path;
   path_length = strlen(path);
+  printf("mkstemp3\n");
 
   /* EINVAL can be returned for 2 reasons:
       1. The template's last 6 characters were not XXXXXX
@@ -326,6 +329,7 @@ static int uv__fs_mkstemp(uv_fs_t* req) {
      of 1, so it's manually checked before. */
   if (path_length < pattern_size ||
       strcmp(path + path_length - pattern_size, pattern)) {
+  printf("mkstemp4\n");
     errno = EINVAL;
     r = -1;
     goto clobber;
@@ -334,17 +338,22 @@ static int uv__fs_mkstemp(uv_fs_t* req) {
   uv_once(&once, uv__mkostemp_initonce);
 
 #ifdef O_CLOEXEC
+  printf("mkstemp5\n");
   if (atomic_load_explicit(&no_cloexec_support, memory_order_relaxed) == 0 &&
       uv__mkostemp != NULL) {
+  printf("mkstemp6\n");
     r = uv__mkostemp(path, O_CLOEXEC);
 
     if (r >= 0)
       return r;
+  printf("mkstemp7\n");
 
     /* If mkostemp() returns EINVAL, it means the kernel doesn't
        support O_CLOEXEC, so we just fallback to mkstemp() below. */
     if (errno != EINVAL)
       goto clobber;
+  printf("mkstemp8\n");
+
 
     /* We set the static variable so that next calls don't even
        try to use mkostemp. */
@@ -352,15 +361,20 @@ static int uv__fs_mkstemp(uv_fs_t* req) {
   }
 #endif  /* O_CLOEXEC */
 
-  if (req->cb != NULL)
+  printf("mkstemp9\n");
+  if (req->cb != NULL) {
+  printf("mkstemp10\n");
     uv_rwlock_rdlock(&req->loop->cloexec_lock);
+  }
 
   r = mkstemp(path);
 
+  printf("mkstemp11\n");
   /* In case of failure `uv__cloexec` will leave error in `errno`,
    * so it is enough to just set `r` to `-1`.
    */
   if (r >= 0 && uv__cloexec(r, 1) != 0) {
+  printf("mkstemp12\n");
     r = uv__close(r);
     if (r != 0)
       abort();
@@ -371,6 +385,7 @@ static int uv__fs_mkstemp(uv_fs_t* req) {
     uv_rwlock_rdunlock(&req->loop->cloexec_lock);
 
 clobber:
+  printf("mkstemp13\n");
   if (r < 0)
     path[0] = '\0';
   return r;

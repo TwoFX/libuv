@@ -638,6 +638,7 @@ static int uv__fsevents_loop_init(uv_loop_t* loop) {
   loop->cf_state = state;
 
   /* uv_thread_t is an alias for pthread_t. */
+  printf("fsevents pthread_create\n");
   err = UV__ERR(pthread_create(&loop->cf_thread, &attr, uv__cf_loop_runner, loop));
 
   if (pthread_attr_destroy(&attr))
