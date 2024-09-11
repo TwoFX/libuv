@@ -191,6 +191,7 @@ void uv__threadpool_cleanup(void) {
 
 
 static void init_threads(void) {
+  printf("init_threads was indeed called");
   uv_thread_options_t config;
   unsigned int i;
   const char* val;
