@@ -942,7 +942,6 @@ void uv_free_cpu_info(uv_cpu_info_t* cpu_infos, int count) {
  * by the time destructors run, ergo, it's not safe to try to clean them up.
  */
 #if defined(__GNUC__) && !defined(_WIN32)
-__attribute__((destructor))
 #endif
 void uv_library_shutdown(void) {
   static int was_shutdown;
