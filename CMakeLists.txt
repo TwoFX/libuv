@@ -317,6 +317,11 @@ if(CMAKE_SYSTEM_NAME STREQUAL "GNU")
        src/unix/hurd.c)
 endif()
 
+if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  list(APPEND uv_sources
+       src/unix/no-proctitle.c)
+endif()
+
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   list(APPEND uv_defines _GNU_SOURCE _POSIX_C_SOURCE=200112)
   list(APPEND uv_libraries dl rt)
