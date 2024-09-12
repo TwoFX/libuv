@@ -167,15 +167,19 @@ __attribute__((destructor))
 void uv__threadpool_cleanup(void) {
   unsigned int i;
 
+  printf("Shutting down threadpool, nthreads = %u", nthreads);
+
   if (nthreads == 0)
     return;
 
 #ifndef __MVS__
   /* TODO(gabylb) - zos: revisit when Woz compiler is available. */
+  printf("Posting exit message");
   post(&exit_message, UV__WORK_CPU);
 #endif
 
   for (i = 0; i < nthreads; i++)
+    printf("Joining...");
     if (uv_thread_join(threads + i))
       abort();
 
